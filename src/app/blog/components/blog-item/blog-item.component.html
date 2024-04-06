@@ -1,0 +1,14 @@
+<div>
+    Blog {{blog.id}}<br>
+    Title: {{blog.title}}<br>
+    Description: {{blog.description}}<br>
+    Author: {{blog.author}}<br>
+    Comments:
+    <ul>
+        <li *ngFor="let comment of blog.comments">{{comment}}</li>
+    </ul>
+    <button type="button" class="btn btn-warning" (click)="editBlog(blog.id)">Edit</button>
+    <button type="button" class="btn btn-danger" (click)="deleteBlog(blog.id)">Delete</button>
+    <br>
+    <br>
+</div>

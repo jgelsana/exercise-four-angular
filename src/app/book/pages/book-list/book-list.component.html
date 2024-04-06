@@ -1,0 +1,5 @@
+<app-command-bar (actionEmitter)="handleAction($event.toString())"></app-command-bar>
+<div *ngFor="let book of books; let i = index">
+    <app-book-item [book]="book" (actionEmitter)="executeAction($event, i)"></app-book-item>
+</div>
+

@@ -1,0 +1,5 @@
+<app-command-bar (actionEmitter)="handleAction($event.toString(), 'blog')"></app-command-bar>
+
+<div *ngFor="let blog of blogs; let i = index">
+    <app-blog-item [blog]="blog" (actionEmitter)="executeAction($event, i)"></app-blog-item>
+</div>

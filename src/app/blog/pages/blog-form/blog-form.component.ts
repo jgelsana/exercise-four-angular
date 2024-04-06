@@ -1,0 +1,95 @@
+import { Component, OnInit } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { BlogService } from '../../services/blog.service';
+import { Blog } from '../../models/blog';
+import { ActivatedRoute } from '@angular/router';
+
+@Component({
+  selector: 'app-blog-form',
+  templateUrl: './blog-form.component.html',
+  styleUrl: './blog-form.component.scss'
+})
+export class BlogFormComponent implements OnInit {
+  blog: Blog;
+  blogForm: FormGroup;
+  commentsFormArray: FormArray;
+  isEditMode: boolean = false;
+
+  constructor(
+    private fb: FormBuilder,
+    private blogService: BlogService,
+    private route: ActivatedRoute
+  ) {
+    this.blog = {} as Blog;
+    this.blogForm = {} as FormGroup;
+    this.commentsFormArray = {} as FormArray;
+  }
+
+  blogs: Blog[] = this.blogService.getBlogs();
+
+  ngOnInit(): void {
+    this.initForm();
+    this.route.params.subscribe(params => {
+      const id = +params['id'];
+      if (id) {
+        this.isEditMode = true;
+        this.blogService.getBlogById(id).subscribe((blog: Blog | undefined) => {
+          if (blog) {
+            this.blog = blog;
+            this.populateForm(blog);
+          } else {
+            console.log('Blog does not exist.')
+          }
+        });
+      }
+    });
+  }
+
+  private initForm(): void {
+    this.blogForm = this.fb.group({
+      title: [''],
+      description: [''],
+      author: [''],
+      comments: this.fb.array([
+        new FormControl('')
+      ]),
+    })
+
+    this.commentsFormArray = this.blogForm.controls['comments'] as FormArray
+  }
+
+  private populateForm(blog: Blog): void {
+    this.blogForm.patchValue({
+      title: blog.title,
+      description: blog.description,
+      author: blog.author,
+    });
+    blog.comments.forEach(comment => {
+      this.commentsFormArray.push(this.fb.control(comment));
+    }
+
+    )
+  }
+
+  addComment() {
+    this.commentsFormArray.push(new FormControl(''));
+  }
+
+  deleteComment(index:number) {
+    this.commentsFormArray.removeAt(index);
+  }
+
+  onSubmit = () => {
+    console.log(this.blogForm.value);
+  };
+
+  addBlog(newBlog: Blog): void {
+    if(this.isEditMode) {
+      this.blogService.updateBlog(newBlog)
+    } else {
+      this.blogService.addBlog(newBlog);
+    }
+  }
+  
+}
+
