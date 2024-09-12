@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Blog } from '../../models/blog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BlogService } from '../../services/blog.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-blog-item',
@@ -9,22 +11,25 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class BlogItemComponent {
   @Input() blog: Blog;
-  @Output() actionEmitter = new EventEmitter<Blog>();
+  // @Output() actionEmitter = new EventEmitter<Object>();
+  @Output() delete: EventEmitter<string> = new EventEmitter<string>();
+  @Output() edit: EventEmitter<string> = new EventEmitter<string>();
+  blogs: Observable<Blog[]> | undefined;
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
   ) {
     this.blog = {} as Blog;
   }
 
-   editBlog(id: number): void {
-    this.router.navigate(['blog/form', id])
-    this.actionEmitter.emit(this.blog);
-  };
+  onDeleteClick(id: string) {
+    this.delete.emit(id);
+  }
 
-  deleteBlog(id: number): void {
-    console.log(`Deleting blog: ${id}`);
-    this.actionEmitter.emit(this.blog);
-  };
+  onEditClick(id: string) {
+    this.edit.emit(id);
+    this.router.navigate(['blog/form', id]);
+  }
+
+
 }

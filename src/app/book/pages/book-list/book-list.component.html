@@ -1,5 +1,8 @@
-<app-command-bar (actionEmitter)="handleAction($event.toString())"></app-command-bar>
-<div *ngFor="let book of books; let i = index">
-    <app-book-item [book]="book" (actionEmitter)="executeAction($event, i)"></app-book-item>
-</div>
+<app-command-bar (deleteAll)="deleteAllBooks()"></app-command-bar>
+
+<ng-container *ngIf="books$ | async as books">
+  <div *ngFor="let book of books; let i = index">
+    <app-book-item [book]="book" (delete)="deleteBook($event)"></app-book-item>
+  </div>
+</ng-container>
 

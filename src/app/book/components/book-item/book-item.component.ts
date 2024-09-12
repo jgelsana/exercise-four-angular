@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Book } from '../../models/book';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-book-item',
@@ -9,23 +10,23 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class BookItemComponent {
   @Input() book: Book;
-  @Output() actionEmitter = new EventEmitter<Book>();
+  @Output() actionEmitter = new EventEmitter<Object>();
+  @Output() delete: EventEmitter<string> = new EventEmitter<string>();
+  @Output() edit: EventEmitter<string> = new EventEmitter<string>();
+  books: Observable<Book[]> | undefined;
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router
   ) {
     this.book = {} as Book;
   }
 
-  editBook(id: number): void {
+  onDeleteClick(id: string) {
+    this.delete.emit(id);
+  }
+
+  onEditClick(id: string) {
+    this.edit.emit(id);
     this.router.navigate(['book/form', id]);
-    this.actionEmitter.emit(this.book);
-  };
-
-  deleteBook(id: number): void {
-    console.log(`Deleting book: ${id}`);
-    this.actionEmitter.emit(this.book);
-  };
-
+  }
 }

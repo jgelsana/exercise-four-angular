@@ -1,4 +1,4 @@
-<form [formGroup]="bookForm" class="container" (ngSubmit)="onSubmit()">
+<form [formGroup]="bookForm" class="container" (ngSubmit)="submit(bookForm.value)">
     <br>
     <div class="form-group">
         <label for="name">Name</label>
@@ -15,6 +15,7 @@
         <button type="button" (click)="addAuthor()" class="btn btn-info">
             Add Author
         </button>
+        <br><br>
     </ng-container>
         <div class="form-group">
             <label for="isbn">ISBN</label>
@@ -22,7 +23,7 @@
         </div>
         <br>
         <div style="text-align: right;">
-        <button type="button" (click)="addBook(bookForm.value)" class="btn btn-info">
+        <button type="button" (click)="submit(bookForm.value)" class="btn btn-info">
             Submit
         </button>
     </div>

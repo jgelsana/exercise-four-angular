@@ -3,6 +3,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@ang
 import { BlogService } from '../../services/blog.service';
 import { Blog } from '../../models/blog';
 import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-blog-form',
@@ -14,6 +15,8 @@ export class BlogFormComponent implements OnInit {
   blogForm: FormGroup;
   commentsFormArray: FormArray;
   isEditMode: boolean = false;
+  blogData: any;
+  blogId: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -25,15 +28,16 @@ export class BlogFormComponent implements OnInit {
     this.commentsFormArray = {} as FormArray;
   }
 
-  blogs: Blog[] = this.blogService.getBlogs();
+  blogs: Observable<Object> = this.blogService.getBlogs();
 
   ngOnInit(): void {
     this.initForm();
     this.route.params.subscribe(params => {
-      const id = +params['id'];
+      const id = params['id'];
+      this.blogId = params['id']; 
       if (id) {
         this.isEditMode = true;
-        this.blogService.getBlogById(id).subscribe((blog: Blog | undefined) => {
+        this.blogService.getBlogById(id).subscribe((blog: any) => {
           if (blog) {
             this.blog = blog;
             this.populateForm(blog);
@@ -58,6 +62,7 @@ export class BlogFormComponent implements OnInit {
     this.commentsFormArray = this.blogForm.controls['comments'] as FormArray
   }
 
+
   private populateForm(blog: Blog): void {
     this.blogForm.patchValue({
       title: blog.title,
@@ -79,17 +84,16 @@ export class BlogFormComponent implements OnInit {
     this.commentsFormArray.removeAt(index);
   }
 
-  onSubmit = () => {
-    console.log(this.blogForm.value);
-  };
-
-  addBlog(newBlog: Blog): void {
+  submit(newBlog: Blog): void {
     if(this.isEditMode) {
-      this.blogService.updateBlog(newBlog)
+      this.blogService.updateBlog(this.blogId, newBlog).subscribe(() => {this.resetForm()});
     } else {
-      this.blogService.addBlog(newBlog);
+      this.blogService.addBlog(newBlog).subscribe(() => {this.resetForm()});
     }
   }
-  
+
+  resetForm(): void {
+    this.blogForm.reset();
+  }
 }
 

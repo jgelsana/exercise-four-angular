@@ -3,6 +3,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@ang
 import { Book } from '../../models/book';
 import { BookService } from '../../services/book.service';
 import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-book-form',
@@ -14,6 +15,8 @@ export class BookFormComponent implements OnInit {
   bookForm: FormGroup;
   authorFormArray: FormArray;
   isEditMode: boolean = false;
+  bookData: any;
+  bookId: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -25,15 +28,16 @@ export class BookFormComponent implements OnInit {
     this.authorFormArray = {} as FormArray;
   }
 
-  books: Book[] = this.bookService.getBooks();
+  books: Observable<Object> = this.bookService.getBooks();
 
   ngOnInit(): void {
     this.initForm();
     this.route.params.subscribe(params => {
-      const id = +params['id'];
+      const id = params['id'];
+      this.bookId = params['id'];
       if (id) {
         this.isEditMode = true;
-        this.bookService.getBookById(id).subscribe((book: Book | undefined) => {
+        this.bookService.getBookById(id).subscribe((book: any) => {
           if (book) {
             this.book = book;
             this.populateForm(book);
@@ -67,9 +71,9 @@ export class BookFormComponent implements OnInit {
     });
   }
 
-  get authors(): FormArray {
-    return this.bookForm.get('authors') as FormArray;
-  }
+  // get authors(): FormArray {
+  //   return this.bookForm.get('authors') as FormArray;
+  // }
 
   addAuthor() {
     this.authorFormArray.push(new FormControl(''));
@@ -79,16 +83,15 @@ export class BookFormComponent implements OnInit {
     this.authorFormArray.removeAt(index);
   }
 
-  onSubmit = () => {
-    console.log(this.bookForm.value);
-  };
-
-  addBook(newBook: Book): void {
+  submit(newBook: Book): void {
     if(this.isEditMode) {
-      this.bookService.updateBook(newBook)
+      this.bookService.updateBook(this.bookId, newBook).subscribe(() => {this.resetForm()})
     } else {
-    this.bookService.addBook(newBook);
-
+      this.bookService.addBook(newBook).subscribe(() => {this.resetForm()});
     }
+  }
+
+  resetForm(): void {
+    this.bookForm.reset();
   }
 }

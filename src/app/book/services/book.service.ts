@@ -1,52 +1,60 @@
 import { Injectable } from '@angular/core';
 import { Book } from '../models/book';
-import { Observable, of } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BookService {
-  
-  private books: Book[] = [
-    {
-      id: 1,
-      name: 'Noli Me Tangere',
-      authors: ['Jose P. Rizal'],
-      isbn: '9715691870'
-    },
-    {
-      id: 2,
-      name: 'Banaag at Sikat',
-      authors: ['Lope K. Santos'],
-      isbn: '9789814914055'
-    },
-    {
-      id: 3,
-      name: 'Mga Ibong Mandaragit',
-      authors: ['Amado V. Hernandez'],
-      isbn: '9718970088'
-    }
-  ]
-  constructor() { }
+serverUrl = 'http://localhost:3000'
 
-  getBooks(): Book[] {
-    return this.books;
-  }
+constructor(private http: HttpClient) { }
 
-  addBook(newBook: Book): void {
-    this.books.push(newBook);
-  }
+getBooks = (): Observable<Book[]> => {
+  return this.http.get<Book[]>(`${this.serverUrl}/books`)
+}
 
-  getBookById(id: number): Observable<Book | undefined> {
-    return of(this.books.find(book => book.id === id));
-  }
+getBookById(id: string): Observable<Object> {
+  return this.http.get(`${this.serverUrl}/books/${id}`)
+}
 
-  updateBook(updatedBook: Book): void {
-    const index = this.books.findIndex(book => book.id === updatedBook.id);
-    if (index !== -1) {
-      this.books[index] = updatedBook;
-    } else {
-      console.error(`Book with ID ${updatedBook.id} not found.`);
-    }
-  }
+addBook(book: Book) {
+  return this.http.post(`${this.serverUrl}/books`, book).pipe(
+    tap(x => {
+      console.log('Adding book:', x);
+    })
+  );
+}
+
+updateBook(bookId: string, updatedBook: Book) {
+  return this.http.put(`${this.serverUrl}/books/${bookId}`, updatedBook).pipe(
+    tap(x => {
+      console.log('Updating', x);
+    })
+  );
+}
+
+deleteBook(id:string) {
+  return this.http.delete(`${this.serverUrl}/books/${id}`).pipe(
+    tap(x => {
+      console.log('Deleting', x);
+    })
+  );
+}
+
+deleteAllBooks(): Observable<Book[]> {
+  return this.http.get<Book[]>(`${this.serverUrl}/books`).pipe(
+    tap(books => {
+      books.forEach(book => {
+        this.http.delete<void>(`${this.serverUrl}/books/${book.id}`).subscribe(
+          () => {},
+          error => console.error(`Error deleting book with ID ${book.id}:`, error)
+        );
+      }
+    );
+    })
+  );
+}
+
 }

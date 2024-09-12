@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Blog } from '../../models/blog';
 import { BlogService } from '../../services/blog.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-blog-list',
@@ -8,21 +9,25 @@ import { BlogService } from '../../services/blog.service';
   styleUrl: './blog-list.component.scss'
 })
 export class BlogListComponent implements OnInit {
-  blogs: Blog[] = [];
+    blogs$: Observable<Blog[]> | undefined;
 
 
-  constructor(private blogService: BlogService) { }
+    constructor(private blogService: BlogService) { }
 
-  ngOnInit(): void {
-    this.blogs = this.blogService.getBlogs();
-  }
+    ngOnInit(): void {
+      this.fetchBlogs();
+    }
+  
+    fetchBlogs() {
+      this.blogs$ = this.blogService.getBlogs();
+    }
 
-  executeAction = (blog: Blog, index: number) => {
-    console.log('Blog: ', blog, index)
-  }
+    deleteBlog(id: string) {
+      this.blogService.deleteBlog(id).subscribe();
+      this.fetchBlogs();
+    }
 
-  handleAction(action: string, activeRoute: string): string {
-    console.log('Action received:', action);
-    return activeRoute;
-  }
+    deleteAllBlogs() {
+      this.blogService.deleteAllBlogs().subscribe(() => {this.fetchBlogs()});
+    }
 }

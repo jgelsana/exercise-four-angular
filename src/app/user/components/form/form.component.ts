@@ -30,8 +30,4 @@ export class FormComponent implements OnInit {
   submit(user: User): void {
     console.log(`User added: ${user.name}` )
   }
-
-  onSubmit = () => {
-    console.log(this.userForm.value);
-  };
 }

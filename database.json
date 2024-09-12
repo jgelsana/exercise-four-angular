@@ -1,0 +1,11 @@
+{
+  "blogs": [],
+  "books": [],
+  "users": [
+    {
+      "username": "john_carlo",
+      "password": "password",
+      "id": "c2bc"
+    }
+  ]
+}

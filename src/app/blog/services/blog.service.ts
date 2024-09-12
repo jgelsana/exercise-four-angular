@@ -1,50 +1,61 @@
 import { Injectable } from '@angular/core';
 import { Blog } from '../models/blog';
-import { Observable, of } from 'rxjs';
+import { Observable, map, mergeMap, of, tap } from 'rxjs';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BlogService {
+serverUrl = 'http://localhost:3000'
 
-  private blogs: Blog[] = [
-    {
-      id: 1,
-      title: 'Blog 1',
-      description: 'My First Blog',
-      author: 'Juan Dela Cruz',
-      comments: ['Wow', 'Nope.', 'Nice.']
-    },
-    {
-      id: 2,
-      title: 'Blog 2',
-      description: 'My Second Blog',
-      author: 'Juan Dela Cruz',
-      comments: ['Nope.']
-    },
-    
-  ]
+constructor(private http: HttpClient) { }
 
-  constructor() { }
+getBlogs = (): Observable<Blog[]> => {
+  return this.http.get<Blog[]>(`${this.serverUrl}/blogs`)
+}
 
-  getBlogs(): Blog[] {
-    return this.blogs;
-  }
+getBlogById(id: string): Observable<Object> {
+  return this.http.get(`${this.serverUrl}/blogs/${id}`)
+}
 
-  addBlog(newBlog: Blog): void {
-    this.blogs.push(newBlog);
-  }
+addBlog(blog: Blog): Observable<any> {
+  return this.http.post(`${this.serverUrl}/blogs`, blog).pipe(
+    tap(response => {
+      console.log('Adding blog:', response);
+    })
+  );
+}
 
-  getBlogById(id: number): Observable<Blog | undefined> {
-    return of(this.blogs.find(blog => blog.id === id));
-  }
+updateBlog(blogId: string, updatedBlog: Blog) {
+  return this.http.put(`${this.serverUrl}/blogs/${blogId}`, updatedBlog).pipe(
+    tap(x => {
+      console.log('Updating', x);
+    })
+  );
+}
 
-  updateBlog(updatedBlog: Blog): void {
-    const index = this.blogs.findIndex(blog => blog.id === updatedBlog.id);
-    if (index !== -1) {
-      this.blogs[index] = updatedBlog;
-    } else {
-      console.error(`Blog with ID ${updatedBlog.id} not found.`);
-    }
-  }
+deleteBlog(id:string) {
+  return this.http.delete(`${this.serverUrl}/blogs/${id}`).pipe(
+    tap(x => {
+      console.log('Deleting', x);
+    })
+  );
+}
+
+deleteAllBlogs(): Observable<Blog[]> {
+  return this.http.get<Blog[]>(`${this.serverUrl}/blogs`).pipe(
+    tap(blogs => {
+      blogs.forEach(blog => {
+        this.http.delete<void>(`${this.serverUrl}/blogs/${blog.id}`).subscribe(
+          () => {},
+          error => console.error(`Error deleting blog with ID ${blog.id}:`, error)
+        );
+      }
+    );
+    })
+  );
+
+}
+
 }

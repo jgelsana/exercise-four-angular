@@ -1,5 +1,8 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BookService } from '../../../book/services/book.service';
+import { BlogService } from '../../../blog/services/blog.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-command-bar',
@@ -11,8 +14,15 @@ export class CommandBarComponent {
   dynamicLink: string = '';
 
   @Output() actionEmitter = new EventEmitter<Object>();
+  @Output() deleteAll: EventEmitter<void> = new EventEmitter();
 
-  constructor(private route: ActivatedRoute, private router: Router) { }
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private blogService: BlogService,
+    private bookService: BookService,
+    private http: HttpClient
+  ) { }
 
 getFormRoute(): string {
   const currentRoute = this.router.url;
@@ -24,7 +34,7 @@ getFormRoute(): string {
   return '/blog'
 }
 
-  emitAction(action: string): void {
-    this.actionEmitter.emit(action);
+  emitDeleteAll() {
+    this.deleteAll.emit();
   }
 }

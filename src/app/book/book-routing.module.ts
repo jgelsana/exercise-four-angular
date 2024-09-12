@@ -13,6 +13,10 @@ const routes: Routes = [
     path: 'form',
     component: BookFormComponent
   },
+  {
+    path: 'form/:id',
+    component: BookFormComponent
+  },
 ]
 
 @NgModule({

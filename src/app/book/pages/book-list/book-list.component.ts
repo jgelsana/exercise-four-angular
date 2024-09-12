@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Book } from '../../models/book';
 import { BookService } from '../../services/book.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-book-list',
@@ -8,19 +9,24 @@ import { BookService } from '../../services/book.service';
   styleUrl: './book-list.component.scss'
 })
 export class BookListComponent implements OnInit {
-  books: Book[] = [];
+  books$: Observable<Book[]> | undefined;
 
   constructor(private bookService: BookService) { }
 
   ngOnInit(): void {
-    this.books = this.bookService.getBooks();
+   this.fetchBooks();
   }
 
-  executeAction = (book: Book, index: number) => {
-    console.log('Book: ', book, index)
+  fetchBooks() {
+    this.books$ = this.bookService.getBooks();
   }
 
-  handleAction(action: string): void {
-    console.log('Action received:', action);
+  deleteBook(id: string) {
+    this.bookService.deleteBook(id).subscribe();
+    this.fetchBooks();
+  }
+
+  deleteAllBooks() {
+    this.bookService.deleteAllBooks().subscribe(() => {this.fetchBooks()});
   }
 }

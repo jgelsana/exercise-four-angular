@@ -6,6 +6,7 @@ import { BlogRoutingModule } from './blog-routing.module';
 import { SharedModule } from '../shared/shared.module';
 import { BlogFormComponent } from './pages/blog-form/blog-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 
 
@@ -19,6 +20,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     BlogRoutingModule,
     SharedModule,
-    ReactiveFormsModule]
+    ReactiveFormsModule,
+    HttpClientModule]
 })
 export class BlogModule { }
